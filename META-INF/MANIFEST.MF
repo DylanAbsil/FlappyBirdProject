@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Application-Id: DAI
+Application-Version: 0.1.0
+Application-PrintableName: DAI
+Application-Description: DAI
+Application-Activities: moc.lab.MainActivity
+
