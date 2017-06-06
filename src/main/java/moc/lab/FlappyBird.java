@@ -6,17 +6,20 @@ import java.util.List;
 
 import ej.bon.Timer;
 import ej.bon.TimerTask;
-
+import ej.microui.display.Colors;
 import ej.microui.display.Display;
 import ej.microui.display.Displayable;
+import ej.microui.display.Font;
 import ej.microui.display.GraphicsContext;
 import ej.microui.display.Image;
 import ej.microui.event.Event;
 import ej.microui.event.generator.Pointer;
 import ej.microui.util.EventHandler;
+import ej.style.font.FontProfile;
 import moc.lab.game.BackgroundEntity;
 import moc.lab.game.PillarEntity;
 import moc.lab.game.Player;
+import moc.lab.pages.ScorePage;
 
 public class FlappyBird extends Displayable implements EventHandler {
 	public static final int GAME_TICK = 10;
@@ -29,11 +32,14 @@ public class FlappyBird extends Displayable implements EventHandler {
 	private PillarEntity mCurrentEntity = null;
 	private Timer mGameTimer;
 	private boolean bShowGameOver;
+	private Font mCustomScoreFont;
 	private int mPoints;
+	private int mCenterX;
 	
 	public FlappyBird(Display display) {
 		super(Display.getDefaultDisplay());
 		bShowGameOver = false;
+		mCenterX = Display.getDefaultDisplay().getWidth() / 2;
 		mBm = new BackgroundEntity();
 		mPlayer = new Player( mBm );
 		mPillars = new ArrayList<PillarEntity>( );
@@ -43,6 +49,15 @@ public class FlappyBird extends Displayable implements EventHandler {
 			mImageStaticBackground = Image.createImage( "/images/background.png" );
 			mImageStaticBackgroundGameOver = Image.createImage( "/images/background_game_over.png" );
 		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			mCustomScoreFont = Font.getFont(85, 25, Font.STYLE_BOLD);
+			if(mCustomScoreFont == Font.getDefaultFont()) {
+				System.out.println("Unable to find custom font! Using default font instead");
+			}
+		} catch( Exception e ) {
 			e.printStackTrace();
 		}
 	}
@@ -93,16 +108,27 @@ public class FlappyBird extends Displayable implements EventHandler {
 			}
 		}
 		
-		mBm.think( gc );
-		
-		
-		for( int i = 0; i < mPillars.size( ); i ++ ) {
-			mCurrentEntity = mPillars.get( i );
-			if( mCurrentEntity != null ) {
-				mCurrentEntity.think( gc );
+		if( bShowGameOver == false ) {
+			mBm.think( gc );
+
+			for( int i = 0; i < mPillars.size( ); i ++ ) {
+				mCurrentEntity = mPillars.get( i );
+				if( mCurrentEntity != null ) {
+					mCurrentEntity.think( gc );
+					
+					if( mCurrentEntity.checkPillardPassedPlayer(mPlayer)) {
+						if( mCurrentEntity.shouldCountScore() ) {
+							mPoints ++;
+							mCurrentEntity.setScoreCounted( true );
+						}
+					}
+				}
 			}
 		}
 		
+		gc.setColor(Colors.BLACK);
+		gc.setFont(mCustomScoreFont);
+		gc.drawString( String.valueOf( this.mPoints ), mCenterX, 10, GraphicsContext.HCENTER);
 		mPlayer.think( gc );
 	}
 	

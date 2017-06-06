@@ -15,6 +15,9 @@ public class PillarEntity extends Entity {
 	private int mOpenSpaceY = 0;
 	private int mHeightBottom;
 	private int mDisplayHeight;
+	private boolean bScoreCounted = false;
+	private boolean bPlayerShouldScore = false;
+	
 	public PillarEntity( BackgroundEntity be ) {
 		mHeightBottom = be.getSize().height;
 		mDisplayHeight = Display.getDefaultDisplay().getHeight();
@@ -30,6 +33,7 @@ public class PillarEntity extends Entity {
 		mOrigins.y = 0;
 		
 		mSize.width = CONFIG_RECTANGLES_WIDTH;
+		bPlayerShouldScore = false;
 	}
 	
 	@Override
@@ -80,12 +84,28 @@ public class PillarEntity extends Entity {
 		return ( A || B || C || D || A2 || B2 || C2 || D2 || A3 || B3 || C3 || D3 || A4 || B4 || C4 || D4 );
 	}
 	
+	public boolean checkPillardPassedPlayer( Player player ) {
+		if( player.getOrigins().x > ( mOrigins.x + mSize.width ) ) {
+			bPlayerShouldScore = true;
+		}
+		
+		return bPlayerShouldScore;
+	}
+	
+	public boolean shouldCountScore( ) {
+		return ( !bScoreCounted && bPlayerShouldScore );
+	}
+	
 	public boolean isDead( ) {
 		if( mOrigins.x < 0 - mSize.width ) {
 			return true;
 		}
 		
 		return false;
+	}
+
+	public void setScoreCounted(boolean state) {
+		bScoreCounted = state;
 	}
 
 	
