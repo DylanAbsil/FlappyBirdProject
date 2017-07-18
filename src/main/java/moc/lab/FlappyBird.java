@@ -8,20 +8,26 @@ import ej.bon.Timer;
 import ej.bon.TimerTask;
 import ej.microui.display.Colors;
 import ej.microui.display.Display;
-import ej.microui.display.Displayable;
 import ej.microui.display.Font;
 import ej.microui.display.GraphicsContext;
 import ej.microui.display.Image;
 import ej.microui.event.Event;
 import ej.microui.event.generator.Pointer;
 import ej.microui.util.EventHandler;
-import ej.style.font.FontProfile;
+import ej.mwt.Widget;
+import ej.style.Element;
+import ej.style.State;
 import moc.lab.game.BackgroundEntity;
+import moc.lab.game.GameOverMenu;
 import moc.lab.game.PillarEntity;
 import moc.lab.game.Player;
-import moc.lab.pages.ScorePage;
+import moc.lab.utils.FileManager;
 
-public class FlappyBird extends Displayable implements EventHandler {
+public class FlappyBird extends Widget implements EventHandler, ej.style.Element {
+	public interface IReturnMainMenu {
+		void returnMainMenu( );
+	}
+	
 	public static final int GAME_TICK = 10;
 	private BackgroundEntity mBm;
 	private Player mPlayer;
@@ -35,15 +41,15 @@ public class FlappyBird extends Displayable implements EventHandler {
 	private Font mCustomScoreFont;
 	private int mPoints;
 	private int mCenterX;
+	private GameOverMenu gameOverMenu;
+	private IReturnMainMenu mMainMenuReturn;
 	
-	public FlappyBird(Display display) {
-		super(Display.getDefaultDisplay());
-		bShowGameOver = false;
+	public FlappyBird( IReturnMainMenu returnMainMenu ) {
+		super( );
+		mMainMenuReturn = returnMainMenu;
+		gameReset();
+		setEventHandler(this);
 		mCenterX = Display.getDefaultDisplay().getWidth() / 2;
-		mBm = new BackgroundEntity();
-		mPlayer = new Player( mBm );
-		mPillars = new ArrayList<PillarEntity>( );
-		mPoints = 0;
 		
 		try {
 			mImageStaticBackground = Image.createImage( "/images/background.png" );
@@ -68,6 +74,8 @@ public class FlappyBird extends Displayable implements EventHandler {
 		mBm = new BackgroundEntity();
 		mPlayer = new Player( mBm );
 		mPillars = new ArrayList<PillarEntity>( );
+		gameOverMenu = new GameOverMenu( 350, 185, 100 );
+		mPoints = 0;
 		
 		if( mGameTimer != null ) {
 			mGameTimer.cancel( );
@@ -90,8 +98,22 @@ public class FlappyBird extends Displayable implements EventHandler {
 					bSwiping = false;
 				}
 			} 
-			else if( Pointer.isClicked(event)) {
-				startGame();
+			else if( /*Pointer.isClicked(event)*/ Pointer.isReleased(event)) {
+				if( gameOverMenu.animationEnded() == true ) {
+					Pointer p = (Pointer)Event.getGenerator(event);
+					int buttonClicked = gameOverMenu.clicked( p.getX( ), p.getY() );
+					
+					if( buttonClicked == 1 ) {
+						gameReset();
+						repaint( );
+					} else if( buttonClicked == 2 ) {
+						if( mMainMenuReturn != null ) {
+							mMainMenuReturn.returnMainMenu();
+						}
+					}
+				} else {
+					startGame();
+				}
 			}
 		}
 		
@@ -99,7 +121,7 @@ public class FlappyBird extends Displayable implements EventHandler {
 	}
 
 	@Override
-	public void paint(GraphicsContext gc) {
+	public void render(GraphicsContext gc) {
 		if( mImageStaticBackground != null ) {
 			if( bShowGameOver == false ) {
 				gc.drawImage( mImageStaticBackground, 0, 0, 0);
@@ -130,6 +152,10 @@ public class FlappyBird extends Displayable implements EventHandler {
 		gc.setFont(mCustomScoreFont);
 		gc.drawString( String.valueOf( this.mPoints ), mCenterX, 10, GraphicsContext.HCENTER);
 		mPlayer.think( gc );
+		
+		if( bShowGameOver == true ) {
+			gameOverMenu.think( gc );
+		}
 	}
 	
 	public void startGame( ) {
@@ -146,7 +172,7 @@ public class FlappyBird extends Displayable implements EventHandler {
 						endGame( false );
 					}
 				} else {
-					ms += 10;
+					ms += GAME_TICK;
 					
 					if( ms >= 1000 ) {
 						ms = 0;
@@ -173,15 +199,17 @@ public class FlappyBird extends Displayable implements EventHandler {
 					}
 				}
 			}
-		}, 0, 10);
+		}, 0, GAME_TICK);
 	}
 	
 	public void endGame( boolean bKillPlayerAnimation ) {
-		if( bKillPlayerAnimation == false ) {
+		if( bKillPlayerAnimation == false && gameOverMenu.animationEnded( ) == true ) {
 			if( mGameTimer != null ) {
 				mGameTimer.cancel();
 				mGameTimer = null;
 			}
+			
+			FileManager.writeScore(mPoints);
 		} else {
 			mPlayer.kill( );
 			bShowGameOver = true;
@@ -189,9 +217,50 @@ public class FlappyBird extends Displayable implements EventHandler {
 	}
 
 	@Override
-	public EventHandler getController() {
+	public void validate(int widthHint, int heightHint) {
+		setPreferredSize(Display.getDefaultDisplay().getWidth(), Display.getDefaultDisplay().getHeight());
+	}
+
+	@Override
+	public boolean hasClassSelector(String classSelector) {
 		// TODO Auto-generated method stub
-		return this;
+		return false;
+	}
+
+	@Override
+	public boolean isInState(State state) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String getAttribute(String attribute) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Element getParentElement() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Element[] getChildrenElements() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Element getChild(int index) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getChildrenCount() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

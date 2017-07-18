@@ -96,13 +96,15 @@ public class MainPage extends Page {
 		grid.add( buttonExit );
 		Label label = new Label( "FLAPPY BIRD" );
 		label.setClassSelectors( "labelMain" );
+		button.getLabel().setClassSelectors("labelButton");
+		buttonScore.getLabel().setClassSelectors("labelButton");
+		buttonExit.getLabel().setClassSelectors("labelButton");
 		
 		button.addOnClickListener( new OnClickListener() {
 			
 			@Override
 			public void onClick() {
-				FlappyBird fb = new FlappyBird( null );
-				fb.show( );
+				MainActivity.getNavigator().show( new GamePage() );
 			}
 		});
 		
@@ -139,7 +141,7 @@ public class MainPage extends Page {
 		esLabel.setAlignment( GraphicsContext.HCENTER | GraphicsContext.VCENTER );
 		EditableStyle esLabelMain = new EditableStyle( esLabel );
 		esLabelMain.setBackgroundColor( Colors.RED );
-		sts.addRule( new TypeSelector( Label.class ), esLabel);
+		sts.addRule( new ClassSelector( "labelButton" ), esLabel);
 		sts.addRule( new ClassSelector( "labelMain"), esLabelMain);
 	}
 }

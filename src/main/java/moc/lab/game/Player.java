@@ -78,7 +78,7 @@ public class Player extends Entity {
 						mOrigins.y = mHeightMax - mSize.height - mBottomDeathHeight;
 					}
 				}
-			} else {
+			} else if( mDead == false ) {
 				if( mDeathTouchedGround == false && mBe.touchWith( this ) == false ) {
 					mOrigins.y += 3;
 				} else {

@@ -8,8 +8,6 @@ public class FontLoader extends AbstractFontLoader {
 
 	@Override
 	protected int getFontHeight(FontProfile fontProfile) {
-		
-		// TODO Auto-generated method stub
 		switch( fontProfile.getSize( ) ) {
 			case LENGTH: {
 				return fontProfile.getSizeValue( );

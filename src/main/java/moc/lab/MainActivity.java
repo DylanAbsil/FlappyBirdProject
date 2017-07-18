@@ -39,19 +39,7 @@ public class MainActivity implements Activity {
 		desk.show( );
 		
 		/**TODO
-		 * --> Faire le test des collisions entre : 
-		 * Le joueur & le sol
-		 * Le joueur & les pilliers
-		 * --> Ajouter un système de point : 
-		 * Détecter quand un joueur dépasse en X un pillier N grâce à :
-		 *		Variable A = Origine X du joueur
-		 *		Variable B = Origine X + taille WIDTH du pillier
-		 *		Il faut que A > B pour que Point ++
-		 * --> Afficer le nombre de points dans le jeux : 
-		 * Créer une nouvelle font
-		 * La mettre en haut de l'écran au milieu en GRAS
 		 * --> Faire la page de Game Over avec le score actuel
-		 * --> Faire une page Scores regroupant tous les scores
 		 */
 	}
 	
